@@ -6,21 +6,27 @@ from poker import *
 import os
 
 pygame.init()
-screen = pygame.display.set_mode()#pygame.RESIZABLE   
+screen = pygame.display.set_mode((1200,800))#pygame.RESIZABLE  
 screen.fill((0,0,0))
 size = width, height = screen.get_size()
 clock = pygame.time.Clock()
 
-background = Image.open("img/poker_background.png")
-background = background.resize((width,height))
-background.save("img/poker_background.png")
-background = pygame.image.load("img/poker_background.png")
+def load_and_resize_image(path, size):
+    image = Image.open(path)
+    image = image.resize(size)
+    image.save(path)
+    return pygame.image.load(path)
 
+background = load_and_resize_image("img/poker_background.png", (width, height))
+piece_surf = load_and_resize_image("img/piece.png", (45, 45))
+etoile_surf = load_and_resize_image("img/etoile_icon.png", (75, 75))
 
 text_font = pygame.font.Font(None,50)
 piece_font = pygame.font.Font(None,75)
 classement_carte_surf = pygame.image.load("img/classement_carte.png")
 classement_carte_rect = classement_carte_surf.get_rect(topleft = (30,260))
+combinaisons_carte_surf = pygame.image.load("img/combinaisons.jpg")
+combinaisons_carte_rect = classement_carte_surf.get_rect(topleft = (10,560))
 text_win_surf = pygame.image.load("img/gagne.png")
 text_win_rect = text_win_surf.get_rect(center= ((width/2+30),height/2-10))
 text_loose_surf = pygame.image.load("img/game_over.png")
@@ -43,9 +49,7 @@ draw_rect = draw_surf.get_rect(topleft = (width/2-120, height/2-30))
 save_surf = pygame.Surface((100,95))
 save_surf.fill("lightgreen")
 save_rect = save_surf.get_rect(topright = (width-5, 5))
-piece_surf = Image.open("img/piece.png"); piece_surf = piece_surf.resize((45,45)) ;piece_surf.save("img/piece.png");piece_surf = pygame.image.load("img/piece.png")
 piece_rect = piece_surf.get_rect(topleft = (10,10))
-etoile_surf = Image.open("img/etoile_icon.png"); etoile_surf = etoile_surf.resize((75,75)) ;etoile_surf.save("img/etoile_icon.png");etoile_surf = pygame.image.load("img/etoile_icon.png")
 etoile_rect = piece_surf.get_rect(bottomright = (width-35,height-40))
 def pieces(piece):
     text_pieces_surf = piece_font.render(str(piece), False, "black")
@@ -71,13 +75,13 @@ def gagner_pieces(piece):
     return text_pieces_surf, text_pieces_rect
 pygame.display.set_icon(piece_surf)
 
-carte_nuage_surf = pygame.image.load("img/nuage.png")
-carte_champignon_surf = pygame.image.load("img/champignon.png")
-carte_fleur_de_feu_surf = pygame.image.load("img/fleur_de_feu.png")
-carte_luigi_surf = pygame.image.load("img/luigi.png")
-carte_mario_surf = pygame.image.load("img/mario.png")
-carte_etoile_surf = pygame.image.load("img/etoile.png")
-carte_dos_surf = pygame.image.load("img/dos.png")
+carte_nuage_surf = load_and_resize_image("img/nuage.png",(round(width/10.41), round(height/4.16)))
+carte_champignon_surf = load_and_resize_image("img/champignon.png",(round(width/10.41), round(height/4.16)))
+carte_fleur_de_feu_surf = load_and_resize_image("img/fleur_de_feu.png",(round(width/10.41), round(height/4.16)))
+carte_luigi_surf = load_and_resize_image("img/luigi.png",(round(width/10.41), round(height/4.16)))
+carte_mario_surf = load_and_resize_image("img/mario.png",(round(width/10.41), round(height/4.16)))
+carte_etoile_surf = load_and_resize_image("img/etoile.png",(round(width/10.41), round(height/4.16)))
+carte_dos_surf = load_and_resize_image("img/dos.png",(round(width/10.41), round(height/4.16)))
 cartes = [carte_dos_surf,carte_etoile_surf,carte_mario_surf,carte_luigi_surf,carte_fleur_de_feu_surf,carte_champignon_surf,carte_nuage_surf]
 
 def definir_carte(carte1,carte2,carte3,carte4,carte5,joueur):
@@ -131,28 +135,45 @@ def save(pieces,etoiles):
         file.write(str(pieces)+"/"+str(etoiles))
         file.close()
 
+def handle_events():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            save(jeux.joueur.pieces, jeux.joueur.etoile)
+            sys.exit()
+
+def render_screen():
+    screen.blit(background,(0,0))
+    screen.blit(classement_carte_surf,classement_carte_rect)
+    screen.blit(combinaisons_carte_surf,combinaisons_carte_rect)
+    screen.blit(save_surf,save_rect)
+    screen.blit(text_save1_surf,text_save1_rect)
+    screen.blit(text_save2_surf,text_save2_rect)
+    joueur_pieces_surf,joueur_pieces_rect = pieces(jeux.joueur.pieces)
+    screen.blit(joueur_pieces_surf,joueur_pieces_rect)
+    screen.blit(piece_surf,piece_rect)
+    screen.blit(text_mise_surf,text_mise_rect)
+    joueur_mise_surf, joueur_mise_rect = bet(mise)
+    screen.blit(joueur_mise_surf,joueur_mise_rect)
+    joueur_etoile_surf,joueur_etoile_rect = etoiles(jeux.joueur.etoile)
+    screen.blit(etoile_surf,etoile_rect)
+    screen.blit(joueur_etoile_surf,joueur_etoile_rect)
+
 temp = pygame.time.get_ticks()
 jeux = Partie()
 if not(os.stat("save.txt").st_size == 0):
     pieces_save, etoiles_save = lire()
     jeux.joueur.pieces = int(pieces_save)
     jeux.joueur.etoile = int(etoiles_save)
-debut_partie = True; selecting = True; qui_gagne = False;son = True; parier = True; mise = 1;banque_cacher = True; monter = [True,True,True,True,True]; descendre = [False,False,False,False,False]
+
+debut_partie = True; selecting = True; qui_gagne = False;son = True; parier = True; mise = 1;banque_cacher = True; monter = [True] * 5; descendre = [False] * 5
 mettre_la_musique()
 
 while 1:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: 
-            save(jeux.joueur.pieces,jeux.joueur.etoile)
-            sys.exit()
-
-    screen.blit(background,(0,0))
-    screen.blit(classement_carte_surf,classement_carte_rect)
+    handle_events()
+    render_screen()
     mouse_pos = pygame.mouse.get_pos()  
     mouse_press = pygame.mouse.get_pressed()
-    screen.blit(save_surf,save_rect)
-    screen.blit(text_save1_surf,text_save1_rect)
-    screen.blit(text_save2_surf,text_save2_rect)
+
     if save_rect.collidepoint(mouse_pos) and mouse_press[0]:
         jeux.joueur.pieces = 10
         jeux.joueur.etoile = 0
@@ -184,15 +205,6 @@ while 1:
                 jeux.joueur.ajouter_pieces(-mise)
                 temp = pygame.time.get_ticks()
 
-    joueur_pieces_surf,joueur_pieces_rect = pieces(jeux.joueur.pieces)
-    screen.blit(joueur_pieces_surf,joueur_pieces_rect)
-    screen.blit(piece_surf,piece_rect)
-    screen.blit(text_mise_surf,text_mise_rect)
-    joueur_mise_surf, joueur_mise_rect = bet(mise)
-    screen.blit(joueur_mise_surf,joueur_mise_rect)
-    joueur_etoile_surf,joueur_etoile_rect = etoiles(jeux.joueur.etoile)
-    screen.blit(etoile_surf,etoile_rect)
-    screen.blit(joueur_etoile_surf,joueur_etoile_rect)    
     
     if banque_cacher:
         for num in range(5):
@@ -205,7 +217,7 @@ while 1:
         bet_collision = pygame.draw.polygon(screen,"yellow",[(60,160),(20,225),(100,225)])
         screen.blit(text_bet_surf,text_bet_rect)
         if bet_collision.collidepoint(mouse_pos) and mouse_press[0]:
-            if mise < jeux.joueur.pieces and mise < 5 and times(200):
+            if mise < jeux.joueur.pieces/2 and times(200):
                 mise += 1
                 temp = pygame.time.get_ticks()
 
@@ -277,7 +289,7 @@ while 1:
                         jeux.joueur.ajouter_pieces(mise)
                 if times(3500):
                     temp = pygame.time.get_ticks()
-                    debut_partie = True; qui_gagne = False; parier = True; banque_cacher = True; mise = 1;son = True; selecting = True;monter = [True,True,True,True,True]; descendre = [False,False,False,False,False]
+                    debut_partie = True; qui_gagne = False; parier = True; banque_cacher = True; mise = 1;son = True; selecting = True;monter = [True] * 5; descendre = [False] * 5
             
     pygame.display.update()
     clock.tick(60)

@@ -12,7 +12,8 @@ def mettre_la_musique():
     if choix == 3:
         pygame.mixer.music.play(-1,9.45)
     else:
-        pygame.mixer.music.play(999)
+        pygame.mixer.music.play(-1)
+
 def trouver_gagnant(j1, j2):
     if j1[-1] > j2[-1]:
         return 1
