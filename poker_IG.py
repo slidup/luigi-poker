@@ -64,8 +64,8 @@ def bet(piece):
     text_pieces_rect = text_pieces_surf.get_rect(topleft = (120,100))
     return text_pieces_surf, text_pieces_rect
 def text_main(main,joueur):
-    if joueur: hauteur = height - 220
-    else: hauteur = 200
+    if joueur: hauteur = height - height/3-10
+    else: hauteur = height/3
     text_main_surf = text_font.render(str(main), False, "red")
     text_main_rect = text_main_surf.get_rect(center = (width/2+30,hauteur))
     return text_main_surf,text_main_rect
@@ -86,7 +86,7 @@ cartes = [carte_dos_surf,carte_etoile_surf,carte_mario_surf,carte_luigi_surf,car
 
 def definir_carte(carte1,carte2,carte3,carte4,carte5,joueur):
     if joueur: hauteur = height-50
-    else: hauteur = 160
+    else: hauteur = round(height/4.16) + 50
     carte_rect1 = carte1.get_rect(midbottom = ((width/2-270),hauteur))
     carte_rect2 = carte2.get_rect(midbottom = ((width/2-120),hauteur))
     carte_rect3 = carte3.get_rect(midbottom = ((width/2+30),hauteur))
@@ -179,6 +179,8 @@ while 1:
         jeux.joueur.etoile = 0
 
     if debut_partie:
+        if mise == 0:
+            print("perdu")
         jeux = commencer_partie(jeux)
         liste_carte_joueur = definir_carte(cartes[jeux.joueur.jeu_en_main[0].valeur],cartes[jeux.joueur.jeu_en_main[1].valeur],cartes[jeux.joueur.jeu_en_main[2].valeur],cartes[jeux.joueur.jeu_en_main[3].valeur],cartes[jeux.joueur.jeu_en_main[4].valeur],True)
         liste_carte_banque = definir_carte(cartes[jeux.banque.jeu_en_main[0].valeur],cartes[jeux.banque.jeu_en_main[1].valeur],cartes[jeux.banque.jeu_en_main[2].valeur],cartes[jeux.banque.jeu_en_main[3].valeur],cartes[jeux.banque.jeu_en_main[4].valeur],False)
@@ -244,7 +246,7 @@ while 1:
                         banque_cacher = False
                         jeux.joueur.trier_jeu()
                         jeu_joueur = jeux.joueur.calculer_main()
-                        jeu_banque = jeux.banque.calculer_main()
+                        jeu_banque = jeux.banque.calculer_main()    
                         gagnant = trouver_gagnant(jeu_joueur, jeu_banque)
                         temp = pygame.time.get_ticks()
         else:
