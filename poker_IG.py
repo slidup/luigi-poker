@@ -6,7 +6,7 @@ from poker import *
 import os
 
 pygame.init()
-screen = pygame.display.set_mode((1200,800))#pygame.RESIZABLE  
+screen = pygame.display.set_mode((1000,600))#pygame.RESIZABLE  
 screen.fill((0,0,0))
 size = width, height = screen.get_size()
 clock = pygame.time.Clock()
@@ -23,10 +23,10 @@ etoile_surf = load_and_resize_image("img/etoile_icon.png", (75, 75))
 
 text_font = pygame.font.Font(None,50)
 piece_font = pygame.font.Font(None,75)
-classement_carte_surf = pygame.image.load("img/classement_carte.png")
-classement_carte_rect = classement_carte_surf.get_rect(topleft = (30,260))
-combinaisons_carte_surf = pygame.image.load("img/combinaisons.jpg")
-combinaisons_carte_rect = classement_carte_surf.get_rect(topleft = (10,560))
+classement_carte_surf = load_and_resize_image("img/classement_carte.png",(round(width/16.67),round(height/2.061)))
+classement_carte_rect = classement_carte_surf.get_rect(center = (width-50,height/2))
+combinaisons_carte_surf = load_and_resize_image("img/combinaisons.jpg",(round(width/8.333),round(height/2.715)))
+combinaisons_carte_rect = classement_carte_surf.get_rect(bottomleft = (10,height+50))
 text_win_surf = pygame.image.load("img/gagne.png")
 text_win_rect = text_win_surf.get_rect(center= ((width/2+30),height/2-10))
 text_loose_surf = pygame.image.load("img/game_over.png")
@@ -37,6 +37,8 @@ text_draw_surf = text_font.render("DRAW", False, "Blue")
 text_draw_rect = text_draw_surf.get_rect(center = ((width/2+30),height/2-10))
 text_bet_surf = text_font.render("BET!", False, "Orange")
 text_bet_rect = text_bet_surf.get_rect(topleft = (20,180))
+text_allin_surf = text_font.render("ALL IN!", False, "blue")
+text_allin_rect = text_allin_surf.get_rect(topleft = (20,280))
 text_mise_surf = text_font.render("mise:", False, "Orange")
 text_mise_rect = text_mise_surf.get_rect(topleft = (20,100))
 text_save1_surf = text_font.render("erase", False, "blue")
@@ -166,7 +168,7 @@ if not(os.stat("save.txt").st_size == 0):
     jeux.joueur.etoile = int(etoiles_save)
 
 debut_partie = True; selecting = True; qui_gagne = False;son = True; parier = True; mise = 1;banque_cacher = True; monter = [True] * 5; descendre = [False] * 5
-mettre_la_musique()
+#mettre_la_musique()
 
 while 1:
     handle_events()
@@ -179,8 +181,8 @@ while 1:
         jeux.joueur.etoile = 0
 
     if debut_partie:
-        if mise == 0:
-            print("perdu")
+        if jeux.joueur.pieces == 0:
+            print("appuyer erase save")
         jeux = commencer_partie(jeux)
         liste_carte_joueur = definir_carte(cartes[jeux.joueur.jeu_en_main[0].valeur],cartes[jeux.joueur.jeu_en_main[1].valeur],cartes[jeux.joueur.jeu_en_main[2].valeur],cartes[jeux.joueur.jeu_en_main[3].valeur],cartes[jeux.joueur.jeu_en_main[4].valeur],True)
         liste_carte_banque = definir_carte(cartes[jeux.banque.jeu_en_main[0].valeur],cartes[jeux.banque.jeu_en_main[1].valeur],cartes[jeux.banque.jeu_en_main[2].valeur],cartes[jeux.banque.jeu_en_main[3].valeur],cartes[jeux.banque.jeu_en_main[4].valeur],False)
@@ -217,10 +219,16 @@ while 1:
     
     if parier:
         bet_collision = pygame.draw.polygon(screen,"yellow",[(60,160),(20,225),(100,225)])
+        allin_collision = pygame.draw.polygon(screen,"red",[(60,260),(20,325),(100,325)])
         screen.blit(text_bet_surf,text_bet_rect)
+        screen.blit(text_allin_surf,text_allin_rect)
         if bet_collision.collidepoint(mouse_pos) and mouse_press[0]:
             if mise < jeux.joueur.pieces/2 and times(200):
                 mise += 1
+                temp = pygame.time.get_ticks()
+        if allin_collision.collidepoint(mouse_pos) and mouse_press[0]:
+            if mise < 10 and times(200):
+                mise = jeux.joueur.pieces
                 temp = pygame.time.get_ticks()
 
     if qui_gagne:
