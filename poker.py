@@ -5,8 +5,8 @@ from random import *
 def mettre_la_musique():
     pygame.mixer.init()
     pygame.mixer.music.set_volume(0.7)
-    musiques = ["card_party.mp3", "casino.mp3", "big_shot_jazz_remix.mp3","bingo.mp3"]
-    choix = randint(0,3)
+    musiques = ["card_party.mp3", "casino.mp3", "big_shot_jazz_remix.mp3","bingo.mp3","bowser_jr.mp3"]
+    choix = randint(0,4)
     musique = "musique/" +  musiques[choix]
     pygame.mixer.music.load(musique)
     if choix == 3:

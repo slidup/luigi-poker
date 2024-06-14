@@ -168,7 +168,7 @@ if not(os.stat("save.txt").st_size == 0):
     jeux.joueur.etoile = int(etoiles_save)
 
 debut_partie = True; selecting = True; qui_gagne = False;son = True; parier = True; mise = 1;banque_cacher = True; monter = [True] * 5; descendre = [False] * 5
-#mettre_la_musique()
+mettre_la_musique()
 
 while 1:
     handle_events()
