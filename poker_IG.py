@@ -45,6 +45,8 @@ text_save1_surf = text_font.render("erase", False, "blue")
 text_save1_rect = text_save1_surf.get_rect(topright = (width-10,10))
 text_save2_surf = text_font.render("save", False, "blue")
 text_save2_rect = text_save2_surf.get_rect(topright = (width-15,60))
+text_game_loose_surf = text_font.render("LOOSE: PRESS ERASE SAVE", False, "black")
+text_game_loose_rect = text_game_loose_surf.get_rect(center = (width/2,height/2))
 draw_surf = pygame.Surface((300,37))
 draw_surf.fill("white")
 draw_rect = draw_surf.get_rect(topleft = (width/2-120, height/2-30))
@@ -167,7 +169,7 @@ if not(os.stat("save.txt").st_size == 0):
     jeux.joueur.pieces = int(pieces_save)
     jeux.joueur.etoile = int(etoiles_save)
 
-debut_partie = True; selecting = True; qui_gagne = False;son = True; parier = True; mise = 1;banque_cacher = True; monter = [True] * 5; descendre = [False] * 5
+debut_partie = True; selecting = True; qui_gagne = False;son = True; parier = True; mise = 1;banque_cacher = True; monter = [True] * 5; descendre = [False] * 5;game_loose = False
 mettre_la_musique()
 
 while 1:
@@ -175,6 +177,8 @@ while 1:
     render_screen()
     mouse_pos = pygame.mouse.get_pos()  
     mouse_press = pygame.mouse.get_pressed()
+    if game_loose:
+        screen.blit(text_game_loose_surf,text_game_loose_rect)
 
     if save_rect.collidepoint(mouse_pos) and mouse_press[0]:
         jeux.joueur.pieces = 10
@@ -182,7 +186,7 @@ while 1:
 
     if debut_partie:
         if jeux.joueur.pieces == 0:
-            print("appuyer erase save")
+            game_loose = True
         jeux = commencer_partie(jeux)
         liste_carte_joueur = definir_carte(cartes[jeux.joueur.jeu_en_main[0].valeur],cartes[jeux.joueur.jeu_en_main[1].valeur],cartes[jeux.joueur.jeu_en_main[2].valeur],cartes[jeux.joueur.jeu_en_main[3].valeur],cartes[jeux.joueur.jeu_en_main[4].valeur],True)
         liste_carte_banque = definir_carte(cartes[jeux.banque.jeu_en_main[0].valeur],cartes[jeux.banque.jeu_en_main[1].valeur],cartes[jeux.banque.jeu_en_main[2].valeur],cartes[jeux.banque.jeu_en_main[3].valeur],cartes[jeux.banque.jeu_en_main[4].valeur],False)
@@ -299,7 +303,12 @@ while 1:
                         jeux.joueur.ajouter_pieces(mise)
                 if times(3500):
                     temp = pygame.time.get_ticks()
-                    debut_partie = True; qui_gagne = False; parier = True; banque_cacher = True; mise = 1;son = True; selecting = True;monter = [True] * 5; descendre = [False] * 5
+                    if jeux.joueur.pieces == 0:
+                        mise = 0
+                    else:
+                        mise = 1
+                        selecting = True
+                    debut_partie = True; qui_gagne = False; parier = True; banque_cacher = True;son = True;monter = [True] * 5; descendre = [False] * 5
             
     pygame.display.update()
     clock.tick(60)
