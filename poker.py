@@ -1,6 +1,16 @@
 import time
-import pygame
+import pygame, sys, os
 from random import *
+
+def resource_path(relative_path):
+    """Obtenir le chemin absolu d'une ressource (fonctionne pour l'exécutable et en mode développement)"""
+    try:
+        # PyInstaller crée un dossier temporaire et y place l'exécutable
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 def mettre_la_musique():
     pygame.mixer.init()
@@ -8,7 +18,7 @@ def mettre_la_musique():
     musiques = ["card_party.mp3", "casino.mp3", "big_shot_jazz_remix.mp3","bingo.mp3","bowser_jr.mp3"]
     choix = randint(0,4)
     musique = "musique/" +  musiques[choix]
-    pygame.mixer.music.load(musique)
+    pygame.mixer.music.load(resource_path(musique))
     if choix == 3:
         pygame.mixer.music.play(-1,9.45)
     else:

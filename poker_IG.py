@@ -17,19 +17,29 @@ def load_and_resize_image(path, size):
     image.save(path)
     return pygame.image.load(path)
 
-background = load_and_resize_image("img/poker_background.png", (width, height))
-piece_surf = load_and_resize_image("img/piece.png", (45, 45))
-etoile_surf = load_and_resize_image("img/etoile_icon.png", (75, 75))
+def resource_path(relative_path):
+    """Obtenir le chemin absolu d'une ressource (fonctionne pour l'exécutable et en mode développement)"""
+    try:
+        # PyInstaller crée un dossier temporaire et y place l'exécutable
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+background = load_and_resize_image(resource_path("img/poker_background.png"), (width, height))
+piece_surf = load_and_resize_image(resource_path("img/piece.png"), (45, 45))
+etoile_surf = load_and_resize_image(resource_path("img/etoile_icon.png"), (75, 75))
 
 text_font = pygame.font.Font(None,50)
 piece_font = pygame.font.Font(None,75)
-classement_carte_surf = load_and_resize_image("img/classement_carte.png",(round(width/16.67),round(height/2.061)))
+classement_carte_surf = load_and_resize_image(resource_path("img/classement_carte.png"),(round(width/16.67),round(height/2.061)))
 classement_carte_rect = classement_carte_surf.get_rect(center = (width-50,height/2))
-combinaisons_carte_surf = load_and_resize_image("img/combinaisons.jpg",(round(width/8.333),round(height/2.715)))
+combinaisons_carte_surf = load_and_resize_image(resource_path("img/combinaisons.jpg"),(round(width/8.333),round(height/2.715)))
 combinaisons_carte_rect = classement_carte_surf.get_rect(bottomleft = (10,height+50))
-text_win_surf = pygame.image.load("img/gagne.png")
+text_win_surf = pygame.image.load(resource_path("img/gagne.png"))
 text_win_rect = text_win_surf.get_rect(center= ((width/2+30),height/2-10))
-text_loose_surf = pygame.image.load("img/game_over.png")
+text_loose_surf = pygame.image.load(resource_path("img/game_over.png"))
 text_loose_rect = text_win_surf.get_rect(center= ((width/2+30),height/2-10))
 text_egalite_surf = text_font.render("égalité", False, "Blue")
 text_egalite_rect = text_egalite_surf.get_rect(center = ((width/2+30),height/2-10))
@@ -79,13 +89,13 @@ def gagner_pieces(piece):
     return text_pieces_surf, text_pieces_rect
 pygame.display.set_icon(piece_surf)
 
-carte_nuage_surf = load_and_resize_image("img/nuage.png",(round(width/10.41), round(height/4.16)))
-carte_champignon_surf = load_and_resize_image("img/champignon.png",(round(width/10.41), round(height/4.16)))
-carte_fleur_de_feu_surf = load_and_resize_image("img/fleur_de_feu.png",(round(width/10.41), round(height/4.16)))
-carte_luigi_surf = load_and_resize_image("img/luigi.png",(round(width/10.41), round(height/4.16)))
-carte_mario_surf = load_and_resize_image("img/mario.png",(round(width/10.41), round(height/4.16)))
-carte_etoile_surf = load_and_resize_image("img/etoile.png",(round(width/10.41), round(height/4.16)))
-carte_dos_surf = load_and_resize_image("img/dos.png",(round(width/10.41), round(height/4.16)))
+carte_nuage_surf = load_and_resize_image(resource_path("img/nuage.png"),(round(width/10.41), round(height/4.16)))
+carte_champignon_surf = load_and_resize_image(resource_path("img/champignon.png"),(round(width/10.41), round(height/4.16)))
+carte_fleur_de_feu_surf = load_and_resize_image(resource_path("img/fleur_de_feu.png"),(round(width/10.41), round(height/4.16)))
+carte_luigi_surf = load_and_resize_image(resource_path("img/luigi.png"),(round(width/10.41), round(height/4.16)))
+carte_mario_surf = load_and_resize_image(resource_path("img/mario.png"),(round(width/10.41), round(height/4.16)))
+carte_etoile_surf = load_and_resize_image(resource_path("img/etoile.png"),(round(width/10.41), round(height/4.16)))
+carte_dos_surf = load_and_resize_image(resource_path("img/dos.png"),(round(width/10.41), round(height/4.16)))
 cartes = [carte_dos_surf,carte_etoile_surf,carte_mario_surf,carte_luigi_surf,carte_fleur_de_feu_surf,carte_champignon_surf,carte_nuage_surf]
 
 def definir_carte(carte1,carte2,carte3,carte4,carte5,joueur):
@@ -123,7 +133,7 @@ def commencer_partie(jeux):
     return jeux
 
 def lire():
-    with open ("save.txt","r") as file:
+    with open (resource_path("save.txt"),"r") as file:
         save = file.read()
     mot1 = ""
     mot2 = ""
@@ -135,7 +145,7 @@ def lire():
     return mot1,mot2
 
 def save(pieces,etoiles):
-    with open ("save.txt", "w") as file:
+    with open (resource_path("save.txt"), "w") as file:
         file.write(str(pieces)+"/"+str(etoiles))
         file.close()
 
@@ -164,7 +174,7 @@ def render_screen():
 
 temp = pygame.time.get_ticks()
 jeux = Partie()
-if not(os.stat("save.txt").st_size == 0):
+if not(os.stat(resource_path("save.txt")).st_size == 0):
     pieces_save, etoiles_save = lire()
     jeux.joueur.pieces = int(pieces_save)
     jeux.joueur.etoile = int(etoiles_save)
@@ -276,7 +286,7 @@ while 1:
                     if son:
                             pygame.mixer.music.pause()
                             pygame.mixer.music.set_volume(1)
-                            pygame.mixer.Channel(0).play(pygame.mixer.Sound('musique/you_win.mp3'))
+                            pygame.mixer.Channel(0).play(pygame.mixer.Sound(resource_path('musique/you_win.mp3')))
                             son = False
                     if not(pygame.mixer.Channel(0).get_busy()) and not(pygame.mixer.music.get_busy()):
                         pygame.mixer.music.set_volume(0.7)
@@ -289,7 +299,7 @@ while 1:
                     if son:
                         pygame.mixer.music.pause()
                         pygame.mixer.music.set_volume(1)
-                        pygame.mixer.Channel(0).play(pygame.mixer.Sound('musique/luigi.mp3'))
+                        pygame.mixer.Channel(0).play(pygame.mixer.Sound(resource_path('musique/luigi.mp3')))
                         son = False
                     if not(pygame.mixer.Channel(0).get_busy()) and not(pygame.mixer.music.get_busy()):
                         pygame.mixer.music.set_volume(0.7)
